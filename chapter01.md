@@ -87,3 +87,86 @@ var p *int
 ```go
 var x int = 10
 ```
+
+### 자료형 추론
+
+```go
+var i = 10
+var p = &i  // i의 주소값을 p에 저장
+```
+
+> = 대신에 := 쓰면 var 생략 가능
+
+```go
+i := 10
+p := &i
+```
+
+```go
+i := 10         // 가능, i는 새로운 정수형 변수
+s := "hello"    // 가능, s는 새로운 문자열 변수
+i = 20          // 가능, i의 값을 변경
+j = 30          // 불가능, j는 선언되지 않은 변수
+i = "hello"     // 불가능, 이미 i는 정수형임
+i := 30         // 불가능, 이미 i는 선언되었음
+i := "hi"       // 불가능, 마찬가지 이유
+```
+
+## 함수와 간단한 제어 구조
+
+### 팩토리얼
+
+```go
+// Package main implements factorial.
+package main
+
+import "fmt"
+
+//fac returns n!.
+func fac(n int) int {
+    if n <= 0 {
+        return 1
+    }
+    return n * fac(n-1)
+}
+
+func main() {
+    fmt.Println(fac(5))
+}
+```
+
+이것을 반복문으로 구현하면,
+
+```go
+// Package main implements factorial.
+package main
+
+import "fmt"
+
+// facItr return n!.
+func facItr(n int) int {
+    result := 1
+    for n > 0 {
+        result *= n
+        n--
+    }
+    return result
+}
+
+func main() {
+    fmt.Println(facItr(5))
+}
+```
+
+다른 언어의 for문처럼 쓸 수도 있다.
+
+```go
+// facItr2 returns n!.
+func facItr2(n int) int {
+    result := 1
+    for i := 2; i <= n; i++ {
+        result *= i
+    }
+    return result
+}
+```
