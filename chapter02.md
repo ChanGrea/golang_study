@@ -140,3 +140,15 @@ workspace
 - **github.com**을 사용하고 내 계정이 **ChanGrea**라고 가정
   - 위와 같이 `src` 폴더 하위에 **github.com/ChanGrea**를 생성한다.
 - 이후 그 하위 폴더에 Project를 생성하면 된다.
+
+> :exclamation: 참고 : GoLand에서 빨간 부분이 뜨는 경우가 있다.
+
+<img src='./img/chapter02/indexing-error.png' />
+
+"Preferences" - "Go" - "GOPATH"에서 **Index entire GOPATH** 부분을 체크하자.
+
+이 옵션을 disable하면, 프로젝트 수준과 벤더에서 제공하는 패키지만 인덱싱하게 된다. 즉, GOPATH 상에 있는 패키지는 인덱싱하지 않기 때문에 위 코드에서 **gin framework**를 사용할 때 빨간색으로 표시되는 것!
+
+*(체크 안해도 실행/동작은 잘 된다.)*
+
+<img src='./img/chapter02/configure.png' />
