@@ -105,3 +105,38 @@ go build <go file명>
 ## :banana: GoLand 사용
 
 사실 위의 모든 셋팅들이 귀찮다면, [GoLand](https://www.jetbrains.com/ko-kr/go/?gclid=EAIaIQobChMI78Dt7azl5wIVWq6WCh2ghgbwEAAYASAAEgKP0vD_BwE)를 쓰면 된다.(대신 **유료**)
+
+## :banana: Go 프로젝트 구조
+
+Go 언어의 프로젝트 구조는 다른 언어에서 쓰는 구조와 방식이 약간 다르다.
+
+### :strawberry: 다른 언어에서 쓰는 프로젝트 구조
+
+```
+worspace
+├── <Project-name>
+│   ├── src
+│   ├── img
+│   ├── public
+│   ├── ...
+```
+
+### :strawberry: Go 언어에서 쓰는 프로젝트 구조
+
+```
+workspace
+├── go
+│   ├── bin
+│   ├── pkg
+│   ├── src
+│   │   ├── github.com
+│   │   │   ├── ChanGrea
+│   │   │   │   ├── <Project-name>
+```
+
+- **~/worksapce/go**를 working directory로 사용한다고 가정
+  - 즉, 이 directory를 `GOPATH`로 지정해줘야 한다.
+  - 해당 GOPATH에서 **"go get ~"** 명령어를 사용하면 `bin`, `pkg`, `src` 폴더가 생성된다.(`bin` 은 get 명령어로 생성은 되지 않는다.)
+- **github.com**을 사용하고 내 계정이 **ChanGrea**라고 가정
+  - 위와 같이 `src` 폴더 하위에 **github.com/ChanGrea**를 생성한다.
+- 이후 그 하위 폴더에 Project를 생성하면 된다.
