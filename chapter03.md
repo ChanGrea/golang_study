@@ -201,8 +201,10 @@ func Example_append() {
 
 - 실제 슬라이스에 **얼마나 넣을 수 있느냐**에 대한 것
 - **cap(x)** 이용
+- :exclamation: 실제 **"앞"**에서 잘라낸 것이랑 **"뒤"**에서 잘라낸 것의 용량이 다르다.
+  - **"뒤"**에서 잘라냈다면 뒤의 공간이 남아 있기 때문에 용량은 그대로다.
 
-```
+```go
 func Example_sliceCap() {
 	nums := []int{1, 2, 3, 4, 5}
 	
@@ -222,6 +224,12 @@ func Example_sliceCap() {
 	fmt.Println("len:", len(sliced2))
 	fmt.Println("cap:", cap(sliced2))
 	fmt.Println()
+  
+  sliced3 := sliced1[:4]
+  fmt.Println(sliced3)
+  fmt.Println("len:", len(sliced3))
+  fmt.Println("cap:", cap(sliced3))
+  fmt.Println()
 	
 	nums[2] = 100
 	fmt.Println(nums, sliced1, sliced2, sliced3)
@@ -243,6 +251,27 @@ func Example_sliceCap() {
 	// cap: 5
 	//
 	// [1 2 100 4 5] [1 2 100] [100 4 5] [1 2 100 4]
+}
+```
+
+### 슬라이스의 내부 구현
+
+- 슬라이스는 배열을 가리키고 있는 구조체
+- `시작주소`, `길이`, `용량`으로 구성
+- 복사, 이동 발생 시, 다른 배열을 보게 된다. (Immutable 개념인듯..)
+  - 따라서 슬라이스에 element 추가/삭제 시, 작업이 끝나고 원래 변수에 재할당 해줘야 함
+
+### 슬라이스 복사
+
+```go
+func Example_sliceCopy() {
+	src := []int[30, 20, 50, 10, 40]
+	dest := make([]int, len(src))
+	for i := range src {
+		dest[i] = src[i]
+	}
+	fmt.Println(dest)
+	// Output: [30 20 50 10 40]
 }
 ```
 
