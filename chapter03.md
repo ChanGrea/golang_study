@@ -275,3 +275,129 @@ func Example_sliceCopy() {
 }
 ```
 
+### 슬라이스 삽입 및 삭제
+
+#### 슬라이스 i번째에 x 삽입 (1)
+
+```go
+if i < len(a) {
+	a = append(a[:i], a[i+1:]...)
+	a[i] = x
+} else {
+	a = append(a, x)
+}
+```
+
+#### 슬라이스 i번째에 x 삽입 (2)
+
+```go
+a = append(a, x)
+copy(a[i+1:], a[i:])
+a[i] = x
+```
+
+- 길이 하나를 늘려주기 위해 뒤에 x 붙여주고
+- 집어넣을 공간 뒤에 있는 부분을 한 칸씩 뒤로 밀어서 복사
+- 해당 부분에 x 삽입
+
+```go
+// x := []int[7, 8, 9]
+a = append(a, x...)
+copy(a[i+len(x):], a[i:])
+copy(a[i:], x)
+```
+
+- 위 예제는 **여러 개** 넣을 경우이다.
+
+#### 슬라이스 i번째 요소(부터 k개) 삭제 (1)
+
+- 이 방법은 O(n)의 시간 복잡도가 걸림
+
+```go
+a = append(a[:i], a[i+1:]...)
+```
+
+```go
+a = append(a[:i], a[i+k:]...)
+```
+
+#### 슬라이스 i번째 요소(부터 k개) 삭제 (2)
+
+- 이 방법은 O(1)의 시간 복잡도가 걸림
+- 슬라이스 뒷 부분을 삭제할 요소에 복사
+
+```go
+a[i] = a[len(a)-1]
+a = a[:len(a)-1]
+```
+
+```go
+start := len(a)-k
+if i+k > start {
+	start = i+k
+}
+copy(a[i:i+k], a[start:])
+a = a[:len(a)-k]
+```
+
+#### 슬라이스 삭제 시 유의점
+
+- 삭제되는 슬랑이스 내부에 **포인터가 있는 경우**
+  - 가비지 컬렉션이 일어나지 않기 때문에 메모리 누수 발생
+- 해당 포인터를 `nil` 로 삭제해줘야 한다.
+
+```go
+copy(a[i:], a[i+i:])
+a[len(a)-1] = nil	// 생략 시 메모리 누수 위험
+a = a[:len(a)-1]
+```
+
+```go
+copy(a[i:], a[i+k:])
+for i := 0; i < k; i++ {
+	a[len(a)-1-i] = nil
+}
+a = a[:len(a)-k]
+```
+
+- 포인터를 포함한 구조체의 경우에는 nil 대신에 **T{}** (T는 구조체 이름)를 넣어준다.
+
+## 맵
+
+### 정의
+
+- **해시테이블**로 구현
+
+#### 형태
+
+```go
+var m map[keyType]valueType
+```
+
+#### 초기화
+
+```go
+m := make(map[keyType]valueType)
+
+// or
+
+m := map[keyType]valueType{}
+```
+
+#### 읽기 / 쓰기
+
+```go
+value, ok := m[key]
+```
+
+- m[key]를 이용하면, key에 대한 value를 얻을 수 있다.
+- 하지만 위와 같이 value와 ok 두 변수를 쓰면
+  - **value** : key에 대한 값
+  - **ok** : key에 해당하는 값이 있는지의 여부
+
+```go
+map[key] = value
+```
+
+- key에 값을 쓸 때에는 위와 같이 한다.
+
