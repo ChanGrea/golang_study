@@ -384,7 +384,7 @@ m := make(map[keyType]valueType)
 m := map[keyType]valueType{}
 ```
 
-#### 읽기 / 쓰기
+#### 읽기 / 쓰기 / 삭제
 
 ```go
 value, ok := m[key]
@@ -400,6 +400,12 @@ map[key] = value
 ```
 
 - key에 값을 쓸 때에는 위와 같이 한다.
+
+```go
+delete(m, key)
+```
+
+- 삭제
 
 #### 맵 테스트 방법
 
@@ -466,4 +472,45 @@ func ExampleCount() {
 	// 다 1
 }
 ```
+
+### 집합
+
+#### 구현
+
+- Go에서 따로 집합을 제공하지 않음
+
+```go
+func hasDupeRune(s sstring) bool {
+	runeSet := map[rune]bool{}
+	for _, r range s {
+		if runeSet[r] {
+			return true
+		}
+		runeSet[r] = true
+	}
+	return false
+}
+```
+
+- 위 방법은 불필요한 bool 값을 저장하고 있어 메모리를 차지한다는 단점
+- **빈 구조체** 를 값으로 사용
+
+```go
+func hasDupeRune(s string) bool {
+	runeSet := map[rune]struct{}{}
+	for _, r range s {
+		if _, exists := runeSet[r]; exists {
+			return true
+		}
+		runeSet[r] = strict{}{}
+	}
+	return false
+}
+```
+
+### 맵의 한계
+
+- 같은 키가 여러 번 들어갈 수 있는 맵은 제공하지 않는다.
+- 맵을 여러 고루틴에서 동시에 구조를 변경할 수 있다.
+  - 스레드 안전하지 않다
 
