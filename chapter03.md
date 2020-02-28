@@ -401,3 +401,69 @@ map[key] = value
 
 - key에 값을 쓸 때에는 위와 같이 한다.
 
+#### 맵 테스트 방법
+
+- **reflect.DeepEqual** 이용
+- 가장 간단한 방법
+
+```go
+func count(s string, codeCount map[rune]int) {
+	for _, r := range s {
+		codeCount[r]++
+	}
+}
+```
+
+```go
+import "reflect"
+
+func TestCount(t *testing.T) {
+	codeCount := map[rune]int{}
+	
+	count("가나다나", codeCount)
+	if !reflect.DeepEqual(
+		map[rune]int{'가': 1, '나': 2, '다': 1},
+		codeCount,
+	) {
+		t.Error("codeCount mismatch:", codeCount)
+	}
+}
+```
+
+- 맵의 크기와 각각의 키와 값들을 모두 비교하는 방법
+
+```go
+func TestCount(t *testing.T) {
+	codeCount := map[rune]int{}
+	count("가나다나", codeCount)
+	if len(codeCount) != 3 {
+		t.Error("codeCount:", codeCount)
+		t.Fatal("count should be 3 but:", len(codeCount))
+	}
+	if codeCount['가'] != 1 || codeCount['나'] != 2 || codeCount['다'] != 1 {
+		t.Error("codeCount mismatch:", codeCount)
+	}
+}
+```
+
+- 순서가 자주 변경되는 map의 특성에 따라 순서대로 맵에 접근하는 방법
+
+```go
+func ExampleCount() {
+	codeCount := map[rune]int{}
+	count("가나다나", codeCount)
+  var keys sort.IntSlice
+  for key := range codeCount {
+    keys = append(keys, int(key))
+  }
+  sort.Sort(keys)
+	for _, key := range keys {
+		fmt.Println(string(key), codeCount[key])
+	}
+	// Output:
+	// 가 1
+	// 나 2
+	// 다 1
+}
+```
+
