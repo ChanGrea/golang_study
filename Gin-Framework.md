@@ -42,5 +42,5 @@ $ go run example.go
 
 "http://localhost:8080/ping"으로 요청을 보내면, 아래와 같은 응답이 온다.
 
-<img src="./img/Gin-framework/quickstart-postman.png" />
+<img src="./img/Gin-Framework/quickstart-postman.png" />
 
