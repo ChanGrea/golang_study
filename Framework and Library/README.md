@@ -1,4 +1,4 @@
-# Gin Framework
+# Framework and Library
 
 ## Intro
 
@@ -10,6 +10,7 @@
 
   - ORM
   - [Gorm](https://github.com/jinzhu/gorm) 에 대해서 살펴보기
+  - [Prisma](https://www.prisma.io/)에 대해서도 살펴보기
 
 - 파일 동기화(?)
 
