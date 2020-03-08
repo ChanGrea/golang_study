@@ -267,3 +267,160 @@ type rune int32
 - int32는 명명된 자료형에 속한다.
 - 위 방법대로 **자료형에 이름을 붙일 수 있다.**
 
+### 명명된 함수형
+
+```go
+type BinOp func(int, int) int
+
+func OpThreeAndFour(f BinOp) {
+	fmt.Println(f(3, 4))
+})
+
+// 아래와 같이 해도 에러가 나지 않는다.
+// 명명되지 않은 자료형을 인자로 넘김
+// 양쪽 모두 명명된 자료형이 아니면 서로 간에 호환된다.
+OpThreeAndFour(func (a, b int) int) {
+  return a + b;
+})
+```
+
+#### Example
+
+```go
+type BinOp func(int, int) int
+type BinSub func(int, int) int
+
+func BinOpToBinSub(f BinOp) BinSub {
+  var count int
+  return func(a, b int) int {
+    fmt.Println(f(a, b))
+    count++
+    return count
+  }
+}
+
+func ExampleBinOpToBinSub() {
+  sub := BinOpToBinSub(func(a, b int) int {
+    return a + b
+  })
+  sub(5, 7)
+  sub(5, 7)
+  count := sub(5, 7)
+  fmt.Println("count:", count)
+  // Output:
+  // 12
+  // 12
+  // 12
+  // count: 3
+}
+```
+
+## 메서드
+
+- 지금까지 본 것들은 **리시버(receiver)**가 없는 함수들
+- 함수에 리시버가 붙은 형태를 메서드라고 한다.
+
+### 리시버(Receiver)
+
+```go
+func (recv T) MethodName(p1 T1, p2 T2) R1
+```
+
+- (recv T) 부분이 리시버 부분
+- 메서드 안에서 recv 사용 가능
+
+#### Example
+
+> As-IS
+
+```go
+type VertexId int
+
+func ExampleVertexID_print() {
+  i := VertexID(100)
+  fmt.Println(i)
+  // Output:
+  // 100
+}
+```
+
+> To-Be
+
+```go
+func (id vertexID) String() string {
+	return fmt.Sprintf("vertexID(%d)", id)
+}
+
+func ExampleVertexID_String() {
+  i := VertexID(100)
+  fmt.Println(i)
+  // Output:
+  // VertexID(100)
+}
+```
+
+### 문자열 다중 집합
+
+```go
+type MultiSet map[string]int
+
+func (m MultiSet) Insert(val string) {
+  m[val]++
+}
+
+func (m MultiSet) Erase(val string) {
+  if m[val] <= 1 {
+    delete(m, val)
+  } else {
+    m[val]--
+  }
+}
+
+func (m MultiSet) Count(val string) int {
+  return m[val]
+}
+
+func (m MultiSet) String() string {
+  s := "{ "
+  for val, count := range m {
+    s += strings.Repeat(val+" ", count)
+  }
+  return s + "}"
+}
+```
+
+### 포인터 리시버(Pointer receiver)
+
+- 자료형이 포인터형인 리시버
+
+#### Example
+
+- 인접 리스트를 파일에서 읽어오고 파일로 쓰는 것
+
+> As-Is
+
+```go
+type Graph [][]int
+
+func WriteTo(w io.Writer, adjList [][]int) error
+func ReadFrom(r io.Reader, adjList *[][]int) error
+```
+
+- ReadFrom은 포인터 리시버가 사용됨
+
+> To-Be
+
+```go
+func (adjList Graph) WriteTo(w io.Writer) error
+func (adjList *Graph) ReadFrom(r io.Reader) error
+```
+
+- 관습상 리시버의 이름을 길게 붙이지 않는다.
+
+### Public & Private
+
+- 메소드의 이름이 **대문자**로 시작 :arrow_right: **Public**, 다른 모듈에서 보이기 때문에 호출 가능
+- 메소드의 이름이 **소문자**로 시작 :arrow_right: **Private**, 다른 모듈에서 보이지 않음
+- 메소드, 자료형, 변수, 상수, 함수 모두에 적용
+- 한 모듈은 여러 파일로 구성
+
