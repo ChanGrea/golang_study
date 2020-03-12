@@ -194,6 +194,125 @@ func main() {
   - 맵으로 구현되어 있고 스레드 안전하지 않다.
   - 동시성을 다루는 7장에서 다룰 예정
 
+### API Handler 작성
+
+```go
+switch r.Method {
+case "GET":
+  id, err := getID()
+  if err != nil {
+    logPrintln(err)
+    return
+  }
+  t, err := m.Get(id)
+  err = json.NewEncoder(w).Encode(Response{
+    ID:		id,
+    Task:	t,
+    Error:ResponseError{err},
+  })
+  if err != nil {
+    log.Println(err)
+  }
+case "PUT":
+  id, err := getID()
+  if err != nil {
+    log.Println(err)
+    return
+  }
+  tasks, err := getTasks()
+  if err != nil {
+    log.Println(err)
+    return
+  }
+  for _, t := range tasks {
+    err = m.Put(id, t)
+    err = json.NewEncoder(w).Encode(Response{
+      ID:		id,
+      Task:	t,
+      Error:ResponseError{err},
+    })
+    if err != nil {
+      log.Println(err)
+      return
+    }
+  }
+case "POST":
+  tasks, err := getTasks()
+  if err != nil {
+    log.Println(err)
+    return
+  }
+  for _, t := range tasks {
+    id, err := m.Post(t)
+    err = json.NewEncoder(w).Encode(Response{
+      ID:		id,
+      Task:	t,
+      Error:ResponseError{err},
+    })
+    if err != nil {
+      log.Println(err)
+      return
+    }
+  }
+case "DELETE":
+  id, err := getID()
+  if err != nil {
+    log.Println(err)
+    return
+  }
+  err = m.Delete(id)
+  err = json.NewEncoder(w).Encode(Response{
+    ID:		id,
+    Error:ResponseError{err},
+  })
+  if err != nil {
+    log.Println(err)
+    return
+  }
+}
+```
+
+### HTML 템플릿 작성
+
+- [https://golang.org/pkg/html/template/](https://golang.org/pkg/html/template/) 에서 제공하는 템플릿 엔진 사용
+
+#### htmlHandler
+
+```go
+const htmlPrefix = "/task/"
+
+var tmpl = template.Must(template.ParseGlob("html/*.html"))
+
+func htmlHandler(w http.ResponseWriter, r *http.Request) {
+  if r.Method != "GET" {
+    log.Println(r.Method, "method is not supported")
+    return
+  }
+  getID := func() (ID, error) {
+    id := task.ID(r.URL.Path[len(htmlPrefix):])		// prefix path 뒷 부분 추출
+    if id == "" {
+      return id, erros.New("htmlHandler: ID is empty")
+    }
+    return id, nil
+  }
+  id, err := getID()
+  if err != nil {
+    log.Println(err)
+    return
+  }
+  t, err := m.Get(id)
+  err = tmpl.ExecuteTemplate(w, "task.html", &Response{
+    ID:		id,
+    Task:	t,
+    Error:ResponseError{err},
+  })
+  if err != nil {
+    log.Println(err)
+    return
+  }
+}
+```
+
 
 
 ## 코드 리팩토링
