@@ -317,4 +317,55 @@ func htmlHandler(w http.ResponseWriter, r *http.Request) {
 
 ## 코드 리팩토링
 
+### 통일성 있게 파일 나누기
+
+- 데이터 액세스 인터페이스 (**accessor.go**)
+  - var ErrTaskNotExist 부터 type DataAccess 까지
+- 메모리 데이터 액세스 구현 (**mem_accessor.go**)
+  - type MemoryDataAccess부터 func Delete 까지
+- 응답 자료형 및 구현 (**response.go**)
+  - type ResponseError부터 type Response까지
+- 핸들러 (**handlers.go**)
+  - var m부터 func htmlHandler까지
+
+### 라우터 사용하기
+
+- 몇 가지 ㄹ아ㅣ브러리가 있지만 여기서는 아래와 같은 라이브러리 사용
+  - Gorilla Web Toolkit의 **mux**라는 써드파티 라이브러리
+
+#### 설치
+
+```bash
+$ go get github.com/gorilla/mux
+```
+
+#### 사용 예제
+
+```go
+const (
+	apiPathPrefix		= "/api/v1/task/"
+  htmlPathPrefix	= "/task/"
+  idPattern				= "/{id:[0-9]+}"
+)
+
+func main() {
+  r := mux.NewRouter()
+  r.PathPrefix(htmlPathPrefix).
+  Path(idPattern).
+  Methods("GET").
+  HandlerFunc(htmlHandler)
+  
+  s := r.PathPrefix(apiPathPrefix).Subrouter()
+  s.HandleFunc(idPattern, apiGetHandler).Methods("GET")
+  s.HandleFunc(idPattern, apiPutHandler).Methods("PUT")
+  s.HandleFunc("/", apiPostHandler).Methods("POST")
+  s.HandleFunc(idPattern, apiDeleteHandler).Methods("DELETE")
+  
+  http.Handle("/", r)
+  log.Fatal(http.ListenAndServe(":8884", nil))
+}
+```
+
+
+
 ## 추가 주제
