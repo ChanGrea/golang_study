@@ -372,6 +372,63 @@ func main() {
 
 ### HTTP 파일 서버
 
+- 자바스크립트, CSS, 이미지 등을 다른 파일에 분리하여 두고 싶을 때
+- [http.FileServer 함수](https://golang.org/pkg/net/http/#FileServer) 참조
+
+#### Example
+
+```go
+package main
+
+import (
+	"flag"
+  "log"
+  "net/http"
+)
+
+var (
+  addr = flab.String(
+  	"addr",
+    ":8080",
+    "address of the webserver",
+  )
+  root = flag.String(
+  	"root",
+    "/var/www",
+    "root directory",
+  )
+)
+
+func main() {
+  flag.Parse()
+  log.Fatal(http.ListenAndServe(
+  	*addr,
+    http.FileServer(http.Dir(*root)),
+  ))
+}
+```
+
+#### 파일 접근
+
+```bash
+go run fileserver.go --addr=localhost:8000 --root=/home/me/www
+```
+
+- /home/me/www/css/style.css 파일 접근 시, `http://localhost:8000/css/style.css` 로 접근 가능
+
+#### 핸들러 추가
+
+- 핸들러를 통해 파일 접근
+
+```go
+func main() {
+  ...
+	http.Handle("/css/", http.FileServer(http.Dir("path/to")))
+}
+```
+
+
+
 ### 몽고디비와 연동하기
 
 ### 에러 처리
