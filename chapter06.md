@@ -431,5 +431,75 @@ func main() {
 
 ### 몽고디비와 연동하기
 
-### 에러 처리
+- `mgo` 써드파티 라이브러리
+- [https://labix.org/mgo](https://labix.org/mgo)
+
+#### 설치
+
+```bash
+go get gopkg.in/mgo.v2
+```
+
+#### mgo
+
+- 기본적으로 12byte ID 사용
+
+```go
+// MongoDB Accessor
+type MongoAccessor struct {
+  session			*mgo.Session
+  collection	*mgo.Collection
+}
+
+// MongoAccessor 리턴
+func New(path, db, c string) task.Accessor {
+  session, err := mgo.Dial(path)
+  if err != nil {
+    return nil
+  }
+  Collection := session.DB(db).C(c)
+  return &MongoAccessor{
+    session:		session,
+    collection:	collection,
+  }
+}
+
+func (m *MongoAccessor) Close() error {
+  m.session.Close()
+  return nil
+}
+
+// id를 ObjectId로 변환
+func idToObjectId(id task.ID) bson.ObjectId {
+  return bson.ObjectIdHex(string(id))
+}
+
+// ObjectId를 task.ID로 변환
+func objectIdToID(objID bson.ObjectId) task.ID {
+  return task.ID(objID.Hex())
+}
+
+// Get
+func (m *MongoAccessor) Get(id task.ID) (task.Task, error) {
+  t := task.Task{}
+  err := m.collection.FindId(idToObjectId(id)).One(&t)
+}
+
+// Put
+func (m *MongoAccessor) Put(id task.ID, t task.Task) error {
+  return m.collection.UpdateId(idToObjectId(id), t)
+}
+
+// Post
+func (m *MongoAccessor) Post(t task.Task) (task.ID, error) {
+  objID :=bson.NewObjectId()
+  _, err := m.collection.UpsertId(objID, &t)
+  return objectIdToID(objID), err
+}
+
+// Delete
+func (m *MongoAccessor) Delete(id task.ID) error {
+  return m.collection.RemoveId(idToObjectId(id))
+}
+```
 
